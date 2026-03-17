@@ -87,20 +87,20 @@
 <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbyZ9QtRth9RQVYu0iid5WuZsuNC30sx77DfzIKYJnnl3K2wB60hRf1t3L6SbDck/exec";
     
-    // KUNCI PINTU: Ambil ID unik pemain dari memori HP
     const PLAYER_ID = localStorage.getItem('lz_player_id'); 
-
-    // Jika tidak ada ID, lemparkan kembali ke pendaftaran!
-    if (!PLAYER_ID) {
-        window.location.href = 'register.html';
-    }
+    if (!PLAYER_ID) { window.location.href = 'register.html'; }
 
     let playerData = {}, dailyQuests = [];
 
     async function fetchSystemData() {
         const container = document.getElementById('questContainer');
         try {
-            const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "GET_DASHBOARD", player_id: PLAYER_ID }) });
+            const response = await fetch(API_URL, { 
+                method: 'POST', 
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                redirect: "follow",
+                body: JSON.stringify({ action: "GET_DASHBOARD", player_id: PLAYER_ID }) 
+            });
             const result = await response.json();
             if(result.success) { playerData = result.player; dailyQuests = result.quests; initDashboard(); } 
             else { container.innerHTML = `<div style="text-align:center; color: var(--hp-alert); font-weight: bold; padding: 20px;">ERROR: ${result.message}</div>`; }
@@ -146,7 +146,12 @@
             playerData.xp += Number(quest.xp); playerData.gold += Number(quest.gold);
             if(playerData.xp > playerData.maxXp) playerData.xp = playerData.maxXp; 
             initDashboard(); 
-            fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "COMPLETE_QUEST", player_id: PLAYER_ID, quest_row: quest.row, xp_reward: Number(quest.xp), gold_reward: Number(quest.gold) }) });
+            fetch(API_URL, { 
+                method: 'POST', 
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                redirect: "follow",
+                body: JSON.stringify({ action: "COMPLETE_QUEST", player_id: PLAYER_ID, quest_row: quest.row, xp_reward: Number(quest.xp), gold_reward: Number(quest.gold) }) 
+            });
         }
     }
 
