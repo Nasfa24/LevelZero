@@ -51,7 +51,7 @@
         .question-wrapper.incoming { opacity: 0; transform: translateX(20px); }
 
         .question-category { font-size: 0.75rem; color: var(--arise-amethyst); font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 15px; }
-        .question-text { font-size: 1.3rem; font-weight: 700; line-height: 1.4; margin-bottom: 40px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        .question-text { font-size: 1.25rem; font-weight: 700; line-height: 1.4; margin-bottom: 40px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
 
         /* === ANSWER BUTTONS (1-5 SCALE) === */
         .answer-scale { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 20px; }
@@ -116,43 +116,102 @@
 </div>
 
 <script>
-    // 1. DATABASE PERTANYAAN (Sampel dari 400 Pertanyaanmu)
-    // Dede menaruh 5 sampel tiap stat. Sisanya bisa kamu copy-paste dari datamu nanti.
+    // 1. DATABASE 80 PERTANYAAN (Masing-masing 20 per Stat dari Grimoire Mas Uuth)
     const qDatabase = {
         STR: [
+            "Ceritakan tentang saat Anda harus bekerja di bawah tekanan ekstrem selama berminggu-minggu tanpa henti.",
+            "Jelaskan situasi terberat dalam hidup Anda yang menguji batas ketahanan mental Anda.",
+            "Bagaimana Anda tetap tenang ketika menghadapi kritik pedas dari atasan di depan umum?",
+            "Ceritakan tentang saat Anda harus menyelesaikan proyek dengan tenggat waktu yang menurut Anda tidak masuk akal.",
+            "Pernahkah Anda merasa ingin berhenti dari pekerjaan karena tekanan yang luar biasa? Apa yang membuat Anda bertahan?",
+            "Ceritakan tentang momen ketika Anda harus membuat keputusan sulit dalam hitungan detik.",
+            "Bagaimana Anda menghadapi situasi di mana Anda menjadi sasaran kemarahan klien atau customer?",
+            "Jelaskan saat Anda harus tetap profesional meskipun sedang mengalami masalah pribadi yang berat.",
+            "Ceritakan tentang pengalaman bekerja di lingkungan yang toxic. Bagaimana Anda bertahan?",
+            "Bagaimana Anda mengelola rasa takut gagal saat menghadapi proyek besar yang menentukan karier Anda?",
+            "Ceritakan tentang saat target Anda diubah secara drastis di tengah jalan. Bagaimana respons Anda?",
             "Pernahkah Anda dipaksa menyerah oleh situasi, tetapi Anda memilih untuk terus berjuang?",
-            "Bagaimana kemampuan Anda memotivasi diri untuk melakukan tugas yang membosankan dan repetitif?",
-            "Seberapa baik Anda mendisiplinkan diri untuk belajar hal baru di luar jam kerja?",
-            "Ceritakan komitmen Anda: Bagaimana Anda menolak godaan instant gratification demi tujuan jangka panjang?",
-            "Bagaimana kemampuan Anda tetap tenang ketika menghadapi kritik pedas di depan umum?"
+            "Jelaskan saat Anda harus menahan emosi ketika diperlakukan tidak hormat oleh rekan kerja.",
+            "Bagaimana Anda tetap fokus ketika bekerja di lingkungan yang penuh distorsi dan kebisingan?",
+            "Ceritakan tentang hari terburuk dalam karier Anda dan bagaimana Anda melewatinya.",
+            "Bagaimana Anda mempersiapkan diri secara mental menghadapi hari Senin yang berat?",
+            "Ceritakan tentang saat Anda gagal dalam presentasi besar. Apa yang Anda lakukan segera setelahnya?",
+            "Bagaimana Anda mengatasi rasa frustrasi ketika ide brilian Anda ditolak mentah-mentah?",
+            "Jelaskan saat Anda harus tetap tersenyum melayani orang lain padahal hati sedang hancur.",
+            "Ceritakan tentang situasi di mana Anda adalah satu-satunya orang yang percaya pada kesuksesan proyek tersebut."
         ],
         INT: [
+            "Ceritakan tentang masalah teknis paling rumit yang pernah Anda pecahkan sendirian.",
+            "Jelaskan saat Anda harus menganalisis data dalam jumlah besar untuk menemukan insight penting.",
             "Bagaimana pendekatan Anda ketika menghadapi masalah yang belum pernah Anda temui sebelumnya?",
-            "Pernahkah Anda mengambil keputusan yang tidak populer tetapi terbukti benar?",
-            "Seberapa cepat Anda beradaptasi dengan perubahan teknologi atau struktur organisasi yang drastis?",
-            "Bagaimana kemampuan Anda menghasilkan ide-ide baru ketika otak sedang stuck/buntu?",
-            "Seberapa baik Anda memikirkan skenario terburuk dalam setiap perencanaan?"
+            "Ceritakan tentang situasi di mana solusi sederhana ternyata menyelesaikan masalah kompleks.",
+            "Bagaimana Anda membedakan antara akar masalah dan gejala dari suatu masalah?",
+            "Jelaskan saat Anda harus memecahkan masalah dengan informasi yang sangat minim.",
+            "Ceritakan tentang proyek yang membutuhkan analisis multivariabel yang rumit.",
+            "Bagaimana Anda memvalidasi bahwa solusi Anda benar-benar efektif?",
+            "Pernahkah Anda menemukan kesalahan dalam analisis orang lain? Bagaimana Anda menyampaikannya?",
+            "Jelaskan metode yang Anda gunakan untuk memecah masalah besar menjadi bagian-bagian kecil.",
+            "Ceritakan tentang saat analisis Anda menyelamatkan perusahaan dari kerugian besar.",
+            "Bagaimana Anda mengatasi kebuntuan berpikir saat memecahkan masalah?",
+            "Jelaskan situasi di mana Anda harus berpikir dalam hitungan menit untuk menyelamatkan situasi.",
+            "Ceritakan tentang masalah yang Anda pecahkan dengan pendekatan non-konvensional.",
+            "Bagaimana Anda menganalisis risiko sebelum mengambil keputusan penting?",
+            "Pernahkah analisis Anda terbukti salah? Apa yang Anda pelajari?",
+            "Jelaskan saat Anda harus memprediksi tren atau hasil di masa depan berdasarkan data terbatas.",
+            "Ceritakan tentang sistem atau proses yang Anda buat untuk memecahkan masalah berulang.",
+            "Bagaimana Anda memastikan objektivitas dalam analisis tanpa terpengaruh bias pribadi?",
+            "Jelaskan pendekatan Anda dalam melakukan root cause analysis."
         ],
         VIT: [
+            "Ceritakan tentang rutinitas pagi Anda dari bangun tidur hingga mulai bekerja.",
             "Bagaimana Anda memastikan kualitas tidur yang cukup di tengah jadwal padat?",
-            "Seberapa konsisten olahraga atau rutinitas fisik yang Anda jalankan setiap minggu?",
-            "Bagaimana kemampuan Anda mengelola stres saat merasa burnout?",
-            "Seberapa baik Anda menjaga hidrasi dan asupan nutrisi selama bekerja?",
-            "Bagaimana Anda membagi waktu keseimbangan antara pekerjaan, keluarga, dan diri sendiri?"
+            "Jelaskan pola makan Anda sehari-hari dan bagaimana pengaruhnya terhadap energi kerja.",
+            "Olahraga apa yang rutin Anda lakukan dan bagaimana Anda konsisten menjalankannya?",
+            "Ceritakan tentang saat Anda merasa paling bertenaga dan paling lesu dalam sehari.",
+            "Bagaimana Anda mengelola energi saat harus bepergian antar kota atau negara?",
+            "Jelaskan strategi Anda untuk tetap segar setelah makan siang.",
+            "Pernahkah Anda mengalami gangguan kesehatan karena pola kerja? Apa yang Anda ubah?",
+            "Ceritakan tentang kebiasaan sehat yang paling sulit Anda pertahankan.",
+            "Bagaimana Anda mengatur asupan kafein atau stimulan lainnya?",
+            "Jelaskan posisi kerja (ergonomi) yang Anda terapkan untuk kesehatan jangka panjang.",
+            "Ceritakan tentang istirahat mikro (micro-breaks) yang Anda lakukan di sela pekerjaan.",
+            "Bagaimana Anda tahu bahwa tubuh Anda membutuhkan istirahat?",
+            "Pernahkah Anda bekerja meskipun sakit? Apa pertimbangannya?",
+            "Jelaskan perubahan gaya hidup sehat yang paling drastis pernah Anda lakukan.",
+            "Ceritakan tentang olahraga favorit Anda dan manfaatnya bagi pekerjaan.",
+            "Bagaimana Anda menjaga hidrasi selama bekerja?",
+            "Jelaskan pengalaman Anda dengan detoks digital atau mengurangi screen time.",
+            "Ceritakan tentang liburan terbaik yang benar-benar memulihkan energi Anda.",
+            "Bagaimana Anda mengatur jadwal olahraga di tengah deadline menumpuk?"
         ],
         CHA: [
-            "Pernahkah Anda berhasil membujuk seseorang yang awalnya sangat menolak ide Anda?",
-            "Bagaimana kemampuan Anda membaca situasi emosional ruangan dan menyesuaikan diri?",
-            "Seberapa baik Anda mendelegasikan tugas penting kepada anggota tim?",
-            "Bagaimana kemampuan Anda menjadi mediator dalam sebuah konflik tim?",
-            "Seberapa cepat Anda membangun kedekatan (rapport) saat bertemu orang baru?"
+            "Ceritakan tentang saat Anda berhasil membujuk seseorang yang awalnya sangat menolak ide Anda.",
+            "Bagaimana Anda mempersiapkan presentasi untuk mempengaruhi para pengambil keputusan?",
+            "Jelaskan saat Anda harus menjual ide kepada tim yang skeptis.",
+            "Pernahkah Anda mengubah opini publik dalam rapat hanya dengan cara penyampaian Anda?",
+            "Ceritakan tentang negosiasi sulit yang Anda menangkan.",
+            "Bagaimana Anda menyesuaikan gaya komunikasi dengan berbagai tipe kepribadian?",
+            "Jelaskan saat Anda menggunakan storytelling untuk mempengaruhi audiens.",
+            "Ceritakan tentang pitch singkat (elevator pitch) yang berhasil mendapatkan investasi atau persetujuan.",
+            "Bagaimana Anda membangun kredibilitas sebelum mencoba mempengaruhi orang lain?",
+            "Pernahkah Anda mempengaruhi atasan untuk mengubah keputusan? Bagaimana caranya?",
+            "Jelaskan teknik komunikasi non-verbal yang Anda gunakan untuk mempengaruhi.",
+            "Ceritakan tentang saat Anda harus meyakinkan tim yang demotivasi.",
+            "Bagaimana Anda mengatasi keberatan atau penolakan dalam komunikasi?",
+            "Jelaskan saat Anda menggunakan data dan emosi secara seimbang untuk persuasi.",
+            "Ceritakan tentang kampanye atau gerakan yang Anda inisiasi di kantor.",
+            "Bagaimana Anda membangun aliansi sebelum mendorong perubahan besar?",
+            "Pernahkah Anda gagal mempengaruhi orang? Apa yang salah?",
+            "Jelaskan saat Anda mempengaruhi tanpa otoritas formal (bukan atasan langsung).",
+            "Ceritakan tentang penggunaan humor yang efektif dalam komunikasi persuasif.",
+            "Bagaimana Anda tahu bahwa pesan Anda sudah diterima dengan baik?"
         ]
     };
 
     let evaluationQuestions = [];
     let currentIndex = 0;
     
-    // Objek untuk menyimpan skor mentah
+    // Menyimpan Skor Mentah
     let rawScores = { STR: 0, INT: 0, VIT: 0, CHA: 0 };
 
     // 2. FUNGSI PENGACAKAN 12 PERTANYAAN (3 dari tiap Stat)
@@ -160,16 +219,16 @@
         const stats = ['STR', 'INT', 'VIT', 'CHA'];
         
         stats.forEach(stat => {
-            // Mengacak array pertanyaan untuk stat ini
+            // Mengacak 20 pertanyaan aslimu
             let shuffled = qDatabase[stat].sort(() => 0.5 - Math.random());
-            // Ambil 3 pertanyaan pertama
+            // Ambil hanya 3 pertanyaan dari 20 yang sudah diacak
             let selected = shuffled.slice(0, 3);
             selected.forEach(q => {
                 evaluationQuestions.push({ category: stat, text: q });
             });
         });
 
-        // Acak urutan 12 pertanyaan tersebut agar pemain tidak menebak polanya
+        // Acak urutan total 12 pertanyaan
         evaluationQuestions = evaluationQuestions.sort(() => 0.5 - Math.random());
         
         renderQuestion();
@@ -183,7 +242,6 @@
         
         const currentQ = evaluationQuestions[currentIndex];
 
-        // Efek Transisi Masuk
         qArea.classList.remove('hidden');
         qArea.classList.add('incoming');
         
@@ -191,7 +249,7 @@
             qArea.classList.remove('incoming');
             qText.innerText = currentQ.text;
             
-            // Samarkan nama stat agar lebih misterius
+            // Samarkan stat agar lebih misterius ala The System
             let catName = "";
             if(currentQ.category === 'STR') catName = "KAPASITAS WILLPOWER";
             if(currentQ.category === 'INT') catName = "ANALISIS KOGNITIF";
@@ -199,23 +257,20 @@
             if(currentQ.category === 'CHA') catName = "RESONANSI SOSIAL";
             qCategory.innerText = catName;
 
-            // Update Progress Bar
             document.getElementById('progressText').innerText = `EVALUASI: ${currentIndex + 1} / 12`;
             document.getElementById('progressBar').style.width = `${((currentIndex + 1) / 12) * 100}%`;
         }, 50);
     }
 
-    // 4. SAAT PEMAIN MENEKAN TOMBOL JAWABAN
+    // 4. SAAT PEMAIN MENJAWAB
     function submitAnswer(score) {
         if (window.navigator && window.navigator.vibrate) { window.navigator.vibrate(20); }
         
         const qArea = document.getElementById('questionArea');
         const currentQ = evaluationQuestions[currentIndex];
         
-        // Simpan skor
         rawScores[currentQ.category] += score;
 
-        // Efek Transisi Keluar
         qArea.classList.add('hidden');
 
         setTimeout(() => {
@@ -225,7 +280,7 @@
             } else {
                 finishEvaluation();
             }
-        }, 300); // Tunggu animasi geser selesai
+        }, 300); 
     }
 
     // 5. SELESAI & SIMPAN DATA
@@ -233,10 +288,7 @@
         document.getElementById('loadingOverlay').style.display = 'flex';
         if (window.navigator && window.navigator.vibrate) { window.navigator.vibrate([100, 100, 100]); }
 
-        // Di sini kita memiliki "Skor Mentah Kuesioner" (Maksimal 15 per Stat)
-        console.log("SKOR AKHIR THE SYSTEM:", rawScores);
-        
-        // Simpan ke LocalStorage sementara untuk simulasi
+        // Simpan ke LocalStorage sementara untuk simulasi Prompt AI nanti
         localStorage.setItem('lz_raw_scores', JSON.stringify(rawScores));
 
         // REDIRECT KE DASHBOARD UTAMA
@@ -245,7 +297,6 @@
         }, 3000);
     }
 
-    // Mulai saat halaman dimuat
     window.onload = initializeEvaluation;
 </script>
 </body>

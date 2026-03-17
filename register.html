@@ -13,20 +13,20 @@
             --mp-cobalt: #0047AB;
             --hp-alert: #D32F2F;
             --arise-amethyst: #6200EA;
-            --system-green: #00FF41; /* Warna hijau terminal retro untuk The System */
+            --system-green: #00FF41; 
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
         
         body { 
-            background-color: #000; /* Layar murni hitam di luar kontainer */
+            background-color: #000; 
             display: flex; justify-content: center; min-height: 100vh;
             -webkit-font-smoothing: antialiased;
         }
 
         #app-container {
             width: 100%; max-width: 480px; min-height: 100vh;
-            background-color: var(--text-onyx); /* Background gelap untuk Awakening */
+            background-color: var(--text-onyx); 
             color: var(--bg-alabaster);
             position: relative;
             padding: 40px 25px;
@@ -50,7 +50,7 @@
         .form-container {
             display: flex; flex-direction: column; gap: 20px;
             animation: fadeIn 2s ease-in forwards;
-            opacity: 0; /* Disembunyikan sampai animasi ketik selesai */
+            opacity: 0; 
         }
         @keyframes fadeIn { to { opacity: 1; } }
 
@@ -74,7 +74,6 @@
             border-bottom-color: var(--arise-amethyst);
         }
         
-        /* Ubah warna option dropdown agar terbaca */
         option { background-color: var(--text-onyx); color: white; }
 
         .helper-text { font-size: 0.65rem; color: #777; font-style: italic; }
@@ -116,7 +115,7 @@
 <div id="app-container">
     <div id="loadingOverlay">
         <div class="spinner"></div>
-        <div class="system-prompt" style="text-align: center; margin:0;">MENGKALIBRASI STATUS...<br>MEMBENTUK HUNTER RANK...</div>
+        <div class="system-prompt" style="text-align: center; margin:0;">MEMPERSIAPKAN UJI KAPASITAS...<br>MEMANGGIL DATA THE SYSTEM...</div>
     </div>
 
     <div class="system-prompt">
@@ -139,7 +138,7 @@
             <label for="playerJob">Profesi / Pekerjaan Saat Ini</label>
             <input list="jobList" id="playerJob" placeholder="Pilih atau ketik profesi..." required autocomplete="off">
             <datalist id="jobList">
-                </datalist>
+            </datalist>
             <span class="helper-text">*Menentukan Class & Quest utamamu nanti.</span>
         </div>
 
@@ -154,12 +153,10 @@
 </div>
 
 <script>
-    // 1. Database Pekerjaan Lengkap
     const jobsDatabase = [
         "ADMINISTRASI", "AGEN46", "AHLI GIZI", "APOTEKER", "ARSITEK", "ARTIS", "ATLET", "BIARAWATI", "BIDAN", "BURUH BONGKAR MUAT/BAGASI", "BURUH HARIAN LEPAS", "BURUH NELAYAN/PERIKANAN", "BURUH PETERNAKAN", "BURUH TANI/PERKEBUNAN", "DOKTER", "DOKTER GIGI", "DOSEN", "FISIKAWAN MEDIK", "GURU", "IMAM MESJID", "JURU MASAK", "JURU PARKIR", "KONSULTAN", "LOGISTIK", "MARBOT MESJID", "MEKANIK", "MITRA GOJEK", "MITRA GOJEK-GO LIFE", "MITRA GRAB", "MITRA SHOPEE", "MITRA TELEPORT AIRASIA", "MITRA UBER", "NARAPIDANA DALAM PROSES ASIMILASI", "NELAYAN/PERIKANAN", "NOTARIS", "PARAJI", "PARANORMAL", "PASTOR", "PEDAGANG", "PEKERJA BAKAT DAN MINAT", "PEKERJA MAGANG", "PELAUT", "PEMANDU LAGU", "PEMASAR IKAN", "PEMASAR PELABUHAN", "PEMBANTU RUMAH TANGGA", "PEMBUDIDAYA IKAN", "PEMULUNG", "PENATA BUSANA", "PENATA RAMBUT", "PENATA RIAS", "PENDAMPING DESA", "PENDETA", "PENELITI", "PENGACARA", "PENGOLAH IKAN", "PENTERJEMAH", "PENYIAR RADIO", "PERANCANG BUSANA", "PERAWAT", "PEREKAM MEDIK DAN INFOKES", "PERISAI", "PETAMBAK GARAM", "PETANI/PEKEBUN", "PETERNAK", "PETUGAS KEAMANAN", "PIALANG", "PROMOTOR ACARA", "PSIKIATER/PSIKOLOG", "PSIKOLOGI KLINIS", "RADIOGRAFER", "RELAWAN TAGANA/RELAWAN BENCANA", "SEKRETARIS", "SENIMAN", "SISWA KERJA PRAKTEK", "SOPIR", "TABIB", "TEKNISI LAB MEDIK", "TENAGA HONORER (SELAIN PENYELENGGARA NEGARA)", "TENAGA KESEHATAN LINGKUNGAN", "TENAGA TEKNIS KEFARMASIAN", "TRANSPORTASI", "TUKANG BATU", "TUKANG CUKUR", "TUKANG GIGI", "TUKANG JAHIT", "TUKANG KAYU", "TUKANG LAS/PANDAI BESI", "TUKANG LISTRIK", "TUKANG PIJAT", "TUKANG SAMPAH", "TUKANG SOL SEPATU", "USTADZ/MUBALIGH", "WARTAWAN", "WIRASWASTA"
     ];
 
-    // Fungsi untuk menyuntikkan data ke Datalist HTML
     function loadJobs() {
         const dataList = document.getElementById('jobList');
         dataList.innerHTML = ''; 
@@ -170,7 +167,6 @@
         });
     }
 
-    // 2. Logika Efek Ketik (Typewriter) ala The System
     const textToType = "[SISTEM DIAKTIFKAN]\nPersyaratan rahasia telah terpenuhi.\nSelamat datang, Player.\nSilakan masukkan data dirimu untuk kalibrasi awal.";
     const typewriterElement = document.getElementById('typewriterText');
     const formContainer = document.getElementById('awakeningForm');
@@ -188,7 +184,7 @@
             setTimeout(typeWriter, 40); 
         } else {
             formContainer.style.display = 'flex';
-            loadJobs(); // Panggil fungsi memuat pekerjaan setelah animasi ketik selesai
+            loadJobs(); 
         }
     }
 
@@ -196,7 +192,6 @@
         setTimeout(typeWriter, 1000); 
     };
 
-    // 3. Logika Submit Formulir Pendaftaran
     document.getElementById('awakeningForm').addEventListener('submit', function(e) {
         e.preventDefault(); 
         
@@ -208,10 +203,13 @@
         document.getElementById('loadingOverlay').style.display = 'flex';
         if (window.navigator && window.navigator.vibrate) { window.navigator.vibrate([100, 50, 100]); } 
 
-        // SIMULASI PROSES KE BACKEND
+        // Redirect ke layar Evaluasi 12 Pertanyaan
         setTimeout(() => {
+            // Menyimpan profil dasar ke local storage untuk digunakan nanti
             localStorage.setItem('lz_player_name', name);
-            window.location.href = 'index.html'; 
+            localStorage.setItem('lz_player_job', job);
+            localStorage.setItem('lz_player_skills', skills);
+            window.location.href = 'evaluation.html'; 
         }, 3000); 
     });
 </script>
