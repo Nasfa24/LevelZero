@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#121212">
+    <title>System Evaluation - Level Zero</title>
+    <style>
+        /* === TACTICAL PALETTE === */
+        :root {
+            --bg-alabaster: #F4F5F7;
+            --text-onyx: #121212;
+            --mp-cobalt: #0047AB;
+            --hp-alert: #D32F2F;
+            --arise-amethyst: #6200EA;
+            --system-green: #00FF41;
+            --gray-dim: #A0A0A0;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        
+        body { 
+            background-color: #000;
+            display: flex; justify-content: center; min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        #app-container {
+            width: 100%; max-width: 480px; min-height: 100vh;
+            background-color: var(--text-onyx);
+            color: var(--bg-alabaster);
+            position: relative;
+            padding: 40px 25px;
+            display: flex; flex-direction: column;
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+            overflow: hidden;
+        }
+
+        /* === PROGRESS BAR === */
+        .progress-container { margin-bottom: 40px; }
+        .progress-text { font-family: 'Courier New', Courier, monospace; color: var(--system-green); font-size: 0.75rem; font-weight: bold; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+        .progress-bar-bg { width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: var(--system-green); width: 0%; transition: width 0.4s ease; }
+
+        /* === QUESTION AREA === */
+        .question-wrapper {
+            flex-grow: 1; display: flex; flex-direction: column; justify-content: center;
+            opacity: 1; transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .question-wrapper.hidden { opacity: 0; transform: translateX(-20px); pointer-events: none; }
+        .question-wrapper.incoming { opacity: 0; transform: translateX(20px); }
+
+        .question-category { font-size: 0.75rem; color: var(--arise-amethyst); font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 15px; }
+        .question-text { font-size: 1.3rem; font-weight: 700; line-height: 1.4; margin-bottom: 40px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+
+        /* === ANSWER BUTTONS (1-5 SCALE) === */
+        .answer-scale { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 20px; }
+        .scale-btn {
+            flex: 1; aspect-ratio: 1/1; border-radius: 12px;
+            background: rgba(255,255,255,0.05); border: 2px solid #333;
+            color: white; font-size: 1.2rem; font-weight: 800;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+        .scale-btn:active { transform: scale(0.9); background: var(--arise-amethyst); border-color: var(--arise-amethyst); }
+        
+        .scale-labels { display: flex; justify-content: space-between; font-size: 0.65rem; color: var(--gray-dim); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
+
+        /* Loading Screen Overlay */
+        #loadingOverlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--text-onyx); z-index: 100;
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .spinner {
+            width: 50px; height: 50px; border: 4px solid rgba(255,255,255,0.1);
+            border-top: 4px solid var(--arise-amethyst); border-radius: 50%;
+            animation: spin 1s linear infinite; margin-bottom: 20px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div id="app-container">
+    
+    <div id="loadingOverlay">
+        <div class="spinner"></div>
+        <div class="progress-text" style="text-align: center; margin:0; font-size:0.85rem;">MENGAKSES DATABASE THE SYSTEM...<br>KALIBRASI STAT SELESAI.</div>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-text" id="progressText">EVALUASI: 1 / 12</div>
+        <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="progressBar"></div>
+        </div>
+    </div>
+
+    <div class="question-wrapper" id="questionArea">
+        <div class="question-category" id="qCategory">ANALISIS MENTAL</div>
+        <div class="question-text" id="qText">Memuat pertanyaan dari The System...</div>
+        
+        <div class="answer-scale">
+            <button class="scale-btn" onclick="submitAnswer(1)">1</button>
+            <button class="scale-btn" onclick="submitAnswer(2)">2</button>
+            <button class="scale-btn" onclick="submitAnswer(3)">3</button>
+            <button class="scale-btn" onclick="submitAnswer(4)">4</button>
+            <button class="scale-btn" onclick="submitAnswer(5)">5</button>
+        </div>
+        <div class="scale-labels">
+            <span>Sangat Buruk</span>
+            <span>Sangat Baik</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 1. DATABASE PERTANYAAN (Sampel dari 400 Pertanyaanmu)
+    // Dede menaruh 5 sampel tiap stat. Sisanya bisa kamu copy-paste dari datamu nanti.
+    const qDatabase = {
+        STR: [
+            "Pernahkah Anda dipaksa menyerah oleh situasi, tetapi Anda memilih untuk terus berjuang?",
+            "Bagaimana kemampuan Anda memotivasi diri untuk melakukan tugas yang membosankan dan repetitif?",
+            "Seberapa baik Anda mendisiplinkan diri untuk belajar hal baru di luar jam kerja?",
+            "Ceritakan komitmen Anda: Bagaimana Anda menolak godaan instant gratification demi tujuan jangka panjang?",
+            "Bagaimana kemampuan Anda tetap tenang ketika menghadapi kritik pedas di depan umum?"
+        ],
+        INT: [
+            "Bagaimana pendekatan Anda ketika menghadapi masalah yang belum pernah Anda temui sebelumnya?",
+            "Pernahkah Anda mengambil keputusan yang tidak populer tetapi terbukti benar?",
+            "Seberapa cepat Anda beradaptasi dengan perubahan teknologi atau struktur organisasi yang drastis?",
+            "Bagaimana kemampuan Anda menghasilkan ide-ide baru ketika otak sedang stuck/buntu?",
+            "Seberapa baik Anda memikirkan skenario terburuk dalam setiap perencanaan?"
+        ],
+        VIT: [
+            "Bagaimana Anda memastikan kualitas tidur yang cukup di tengah jadwal padat?",
+            "Seberapa konsisten olahraga atau rutinitas fisik yang Anda jalankan setiap minggu?",
+            "Bagaimana kemampuan Anda mengelola stres saat merasa burnout?",
+            "Seberapa baik Anda menjaga hidrasi dan asupan nutrisi selama bekerja?",
+            "Bagaimana Anda membagi waktu keseimbangan antara pekerjaan, keluarga, dan diri sendiri?"
+        ],
+        CHA: [
+            "Pernahkah Anda berhasil membujuk seseorang yang awalnya sangat menolak ide Anda?",
+            "Bagaimana kemampuan Anda membaca situasi emosional ruangan dan menyesuaikan diri?",
+            "Seberapa baik Anda mendelegasikan tugas penting kepada anggota tim?",
+            "Bagaimana kemampuan Anda menjadi mediator dalam sebuah konflik tim?",
+            "Seberapa cepat Anda membangun kedekatan (rapport) saat bertemu orang baru?"
+        ]
+    };
+
+    let evaluationQuestions = [];
+    let currentIndex = 0;
+    
+    // Objek untuk menyimpan skor mentah
+    let rawScores = { STR: 0, INT: 0, VIT: 0, CHA: 0 };
+
+    // 2. FUNGSI PENGACAKAN 12 PERTANYAAN (3 dari tiap Stat)
+    function initializeEvaluation() {
+        const stats = ['STR', 'INT', 'VIT', 'CHA'];
+        
+        stats.forEach(stat => {
+            // Mengacak array pertanyaan untuk stat ini
+            let shuffled = qDatabase[stat].sort(() => 0.5 - Math.random());
+            // Ambil 3 pertanyaan pertama
+            let selected = shuffled.slice(0, 3);
+            selected.forEach(q => {
+                evaluationQuestions.push({ category: stat, text: q });
+            });
+        });
+
+        // Acak urutan 12 pertanyaan tersebut agar pemain tidak menebak polanya
+        evaluationQuestions = evaluationQuestions.sort(() => 0.5 - Math.random());
+        
+        renderQuestion();
+    }
+
+    // 3. RENDER PERTANYAAN KE LAYAR
+    function renderQuestion() {
+        const qArea = document.getElementById('questionArea');
+        const qText = document.getElementById('qText');
+        const qCategory = document.getElementById('qCategory');
+        
+        const currentQ = evaluationQuestions[currentIndex];
+
+        // Efek Transisi Masuk
+        qArea.classList.remove('hidden');
+        qArea.classList.add('incoming');
+        
+        setTimeout(() => {
+            qArea.classList.remove('incoming');
+            qText.innerText = currentQ.text;
+            
+            // Samarkan nama stat agar lebih misterius
+            let catName = "";
+            if(currentQ.category === 'STR') catName = "KAPASITAS WILLPOWER";
+            if(currentQ.category === 'INT') catName = "ANALISIS KOGNITIF";
+            if(currentQ.category === 'VIT') catName = "MANAJEMEN VITALITAS";
+            if(currentQ.category === 'CHA') catName = "RESONANSI SOSIAL";
+            qCategory.innerText = catName;
+
+            // Update Progress Bar
+            document.getElementById('progressText').innerText = `EVALUASI: ${currentIndex + 1} / 12`;
+            document.getElementById('progressBar').style.width = `${((currentIndex + 1) / 12) * 100}%`;
+        }, 50);
+    }
+
+    // 4. SAAT PEMAIN MENEKAN TOMBOL JAWABAN
+    function submitAnswer(score) {
+        if (window.navigator && window.navigator.vibrate) { window.navigator.vibrate(20); }
+        
+        const qArea = document.getElementById('questionArea');
+        const currentQ = evaluationQuestions[currentIndex];
+        
+        // Simpan skor
+        rawScores[currentQ.category] += score;
+
+        // Efek Transisi Keluar
+        qArea.classList.add('hidden');
+
+        setTimeout(() => {
+            currentIndex++;
+            if (currentIndex < 12) {
+                renderQuestion();
+            } else {
+                finishEvaluation();
+            }
+        }, 300); // Tunggu animasi geser selesai
+    }
+
+    // 5. SELESAI & SIMPAN DATA
+    function finishEvaluation() {
+        document.getElementById('loadingOverlay').style.display = 'flex';
+        if (window.navigator && window.navigator.vibrate) { window.navigator.vibrate([100, 100, 100]); }
+
+        // Di sini kita memiliki "Skor Mentah Kuesioner" (Maksimal 15 per Stat)
+        console.log("SKOR AKHIR THE SYSTEM:", rawScores);
+        
+        // Simpan ke LocalStorage sementara untuk simulasi
+        localStorage.setItem('lz_raw_scores', JSON.stringify(rawScores));
+
+        // REDIRECT KE DASHBOARD UTAMA
+        setTimeout(() => {
+            window.location.href = 'index.html';
+        }, 3000);
+    }
+
+    // Mulai saat halaman dimuat
+    window.onload = initializeEvaluation;
+</script>
+</body>
+</html>

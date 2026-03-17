@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#121212">
+    <title>System Awakening - Level Zero</title>
+    <style>
+        /* === TACTICAL PALETTE & VARIABLES === */
+        :root {
+            --bg-alabaster: #F4F5F7;
+            --text-onyx: #121212;
+            --mp-cobalt: #0047AB;
+            --hp-alert: #D32F2F;
+            --arise-amethyst: #6200EA;
+            --system-green: #00FF41; /* Warna hijau terminal retro untuk The System */
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        
+        body { 
+            background-color: #000; /* Layar murni hitam di luar kontainer */
+            display: flex; justify-content: center; min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        #app-container {
+            width: 100%; max-width: 480px; min-height: 100vh;
+            background-color: var(--text-onyx); /* Background gelap untuk Awakening */
+            color: var(--bg-alabaster);
+            position: relative;
+            padding: 40px 25px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+            display: flex; flex-direction: column;
+        }
+
+        /* === EFEK KETIK THE SYSTEM === */
+        .system-prompt {
+            font-family: 'Courier New', Courier, monospace;
+            color: var(--system-green);
+            font-size: 0.85rem;
+            margin-bottom: 30px;
+            line-height: 1.5;
+            min-height: 60px;
+        }
+        .cursor { display: inline-block; width: 8px; height: 15px; background-color: var(--system-green); animation: blink 1s step-end infinite; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        /* === FORM AWAKENING === */
+        .form-container {
+            display: flex; flex-direction: column; gap: 20px;
+            animation: fadeIn 2s ease-in forwards;
+            opacity: 0; /* Disembunyikan sampai animasi ketik selesai */
+        }
+        @keyframes fadeIn { to { opacity: 1; } }
+
+        .input-group { display: flex; flex-direction: column; gap: 8px; }
+        .input-group label {
+            font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 1px; color: #A0A0A0;
+        }
+        .input-group input, .input-group select {
+            background-color: transparent;
+            border: none;
+            border-bottom: 2px solid #333;
+            color: white;
+            font-size: 1rem;
+            padding: 10px 0;
+            transition: all 0.3s ease;
+            outline: none;
+            border-radius: 0;
+        }
+        .input-group input:focus, .input-group select:focus {
+            border-bottom-color: var(--arise-amethyst);
+        }
+        
+        /* Ubah warna option dropdown agar terbaca */
+        option { background-color: var(--text-onyx); color: white; }
+
+        .helper-text { font-size: 0.65rem; color: #777; font-style: italic; }
+
+        /* === TOMBOL SUBMIT === */
+        .btn-awaken {
+            margin-top: 30px;
+            background-color: var(--arise-amethyst);
+            color: white;
+            border: none;
+            padding: 18px;
+            font-size: 1rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 15px rgba(98, 0, 234, 0.3);
+        }
+        .btn-awaken:active { transform: scale(0.96); }
+        
+        /* Loading Screen Overlay */
+        #loadingOverlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--text-onyx); z-index: 100;
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .spinner {
+            width: 50px; height: 50px; border: 4px solid rgba(255,255,255,0.1);
+            border-top: 4px solid var(--arise-amethyst); border-radius: 50%;
+            animation: spin 1s linear infinite; margin-bottom: 20px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div id="app-container">
+    <div id="loadingOverlay">
+        <div class="spinner"></div>
+        <div class="system-prompt" style="text-align: center; margin:0;">MENGKALIBRASI STATUS...<br>MEMBENTUK HUNTER RANK...</div>
+    </div>
+
+    <div class="system-prompt">
+        <span id="typewriterText"></span><span class="cursor"></span>
+    </div>
+
+    <form class="form-container" id="awakeningForm" style="display: none;">
+        
+        <div class="input-group">
+            <label for="playerName">Nama Panggilan</label>
+            <input type="text" id="playerName" placeholder="Misal: Sung Jin-Woo" required autocomplete="off">
+        </div>
+
+        <div class="input-group">
+            <label for="playerEmail">Email (Sebagai ID Sistem)</label>
+            <input type="email" id="playerEmail" placeholder="player@levelzero.com" required autocomplete="email">
+        </div>
+
+        <div class="input-group">
+            <label for="playerJob">Profesi / Pekerjaan Saat Ini</label>
+            <input list="jobList" id="playerJob" placeholder="Pilih atau ketik profesi..." required autocomplete="off">
+            <datalist id="jobList">
+                </datalist>
+            <span class="helper-text">*Menentukan Class & Quest utamamu nanti.</span>
+        </div>
+
+        <div class="input-group">
+            <label for="playerSkills">Keahlian Utama (Maks 3)</label>
+            <input type="text" id="playerSkills" placeholder="Misal: Coding, Desain, Public Speaking" required autocomplete="off">
+            <span class="helper-text">*Pisahkan dengan koma. Sistem akan mengkalkulasi Base INT & CHA-mu.</span>
+        </div>
+
+        <button type="submit" class="btn-awaken" id="btnSubmit">TERIMA PANGGILAN</button>
+    </form>
+</div>
+
+<script>
+    // 1. Database Pekerjaan Lengkap
+    const jobsDatabase = [
+        "ADMINISTRASI", "AGEN46", "AHLI GIZI", "APOTEKER", "ARSITEK", "ARTIS", "ATLET", "BIARAWATI", "BIDAN", "BURUH BONGKAR MUAT/BAGASI", "BURUH HARIAN LEPAS", "BURUH NELAYAN/PERIKANAN", "BURUH PETERNAKAN", "BURUH TANI/PERKEBUNAN", "DOKTER", "DOKTER GIGI", "DOSEN", "FISIKAWAN MEDIK", "GURU", "IMAM MESJID", "JURU MASAK", "JURU PARKIR", "KONSULTAN", "LOGISTIK", "MARBOT MESJID", "MEKANIK", "MITRA GOJEK", "MITRA GOJEK-GO LIFE", "MITRA GRAB", "MITRA SHOPEE", "MITRA TELEPORT AIRASIA", "MITRA UBER", "NARAPIDANA DALAM PROSES ASIMILASI", "NELAYAN/PERIKANAN", "NOTARIS", "PARAJI", "PARANORMAL", "PASTOR", "PEDAGANG", "PEKERJA BAKAT DAN MINAT", "PEKERJA MAGANG", "PELAUT", "PEMANDU LAGU", "PEMASAR IKAN", "PEMASAR PELABUHAN", "PEMBANTU RUMAH TANGGA", "PEMBUDIDAYA IKAN", "PEMULUNG", "PENATA BUSANA", "PENATA RAMBUT", "PENATA RIAS", "PENDAMPING DESA", "PENDETA", "PENELITI", "PENGACARA", "PENGOLAH IKAN", "PENTERJEMAH", "PENYIAR RADIO", "PERANCANG BUSANA", "PERAWAT", "PEREKAM MEDIK DAN INFOKES", "PERISAI", "PETAMBAK GARAM", "PETANI/PEKEBUN", "PETERNAK", "PETUGAS KEAMANAN", "PIALANG", "PROMOTOR ACARA", "PSIKIATER/PSIKOLOG", "PSIKOLOGI KLINIS", "RADIOGRAFER", "RELAWAN TAGANA/RELAWAN BENCANA", "SEKRETARIS", "SENIMAN", "SISWA KERJA PRAKTEK", "SOPIR", "TABIB", "TEKNISI LAB MEDIK", "TENAGA HONORER (SELAIN PENYELENGGARA NEGARA)", "TENAGA KESEHATAN LINGKUNGAN", "TENAGA TEKNIS KEFARMASIAN", "TRANSPORTASI", "TUKANG BATU", "TUKANG CUKUR", "TUKANG GIGI", "TUKANG JAHIT", "TUKANG KAYU", "TUKANG LAS/PANDAI BESI", "TUKANG LISTRIK", "TUKANG PIJAT", "TUKANG SAMPAH", "TUKANG SOL SEPATU", "USTADZ/MUBALIGH", "WARTAWAN", "WIRASWASTA"
+    ];
+
+    // Fungsi untuk menyuntikkan data ke Datalist HTML
+    function loadJobs() {
+        const dataList = document.getElementById('jobList');
+        dataList.innerHTML = ''; 
+        jobsDatabase.forEach(job => {
+            const option = document.createElement('option');
+            option.value = job;
+            dataList.appendChild(option);
+        });
+    }
+
+    // 2. Logika Efek Ketik (Typewriter) ala The System
+    const textToType = "[SISTEM DIAKTIFKAN]\nPersyaratan rahasia telah terpenuhi.\nSelamat datang, Player.\nSilakan masukkan data dirimu untuk kalibrasi awal.";
+    const typewriterElement = document.getElementById('typewriterText');
+    const formContainer = document.getElementById('awakeningForm');
+    let charIndex = 0;
+
+    function typeWriter() {
+        if (charIndex < textToType.length) {
+            if(textToType.charAt(charIndex) === '\n') {
+                typewriterElement.innerHTML += '<br>';
+            } else {
+                typewriterElement.innerHTML += textToType.charAt(charIndex);
+            }
+            charIndex++;
+            if(charIndex % 5 === 0 && window.navigator && window.navigator.vibrate) { window.navigator.vibrate(10); }
+            setTimeout(typeWriter, 40); 
+        } else {
+            formContainer.style.display = 'flex';
+            loadJobs(); // Panggil fungsi memuat pekerjaan setelah animasi ketik selesai
+        }
+    }
+
+    window.onload = () => {
+        setTimeout(typeWriter, 1000); 
+    };
+
+    // 3. Logika Submit Formulir Pendaftaran
+    document.getElementById('awakeningForm').addEventListener('submit', function(e) {
+        e.preventDefault(); 
+        
+        const name = document.getElementById('playerName').value;
+        const email = document.getElementById('playerEmail').value;
+        const job = document.getElementById('playerJob').value;
+        const skills = document.getElementById('playerSkills').value;
+
+        document.getElementById('loadingOverlay').style.display = 'flex';
+        if (window.navigator && window.navigator.vibrate) { window.navigator.vibrate([100, 50, 100]); } 
+
+        // SIMULASI PROSES KE BACKEND
+        setTimeout(() => {
+            localStorage.setItem('lz_player_name', name);
+            window.location.href = 'index.html'; 
+        }, 3000); 
+    });
+</script>
+</body>
+</html>
