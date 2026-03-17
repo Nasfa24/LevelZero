@@ -2,246 +2,323 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Level Zero - The System</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#F4F5F7">
+    <title>Level Zero (Lvl. 0)</title>
     <style>
-        /* ==========================================
-           TACTICAL HIGH-CONTRAST PALETTE v2
-           ========================================== */
+        /* === TACTICAL PALETTE & VARIABLES === */
         :root {
             --bg-alabaster: #F4F5F7;
             --text-onyx: #121212;
-            --system-blue: #0047AB;
-            --alert-red: #D32F2F;
-            --arise-purple: #6200EA;
-            --card-white: #FFFFFF;
+            --mp-cobalt: #0047AB;
+            --hp-alert: #D32F2F;
+            --arise-amethyst: #6200EA;
+            --gold: #F5A623;
+            --card-bg: #FFFFFF;
+            --gray-dim: #A0A0A0;
         }
 
-        body {
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        
+        /* === PENGATURAN LAYAR NATIVE MOBILE APP === */
+        body { 
+            background-color: #222; /* Warna gelap jika dibuka di PC */
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        #app-container {
+            width: 100%;
+            max-width: 480px; /* Mengunci ukuran maksimal selebar HP */
+            min-height: 100vh;
             background-color: var(--bg-alabaster);
             color: var(--text-onyx);
-            font-family: 'Courier New', Courier, monospace;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            position: relative;
+            padding-bottom: calc(80px + env(safe-area-inset-bottom)); /* Ruang untuk footer & safe area iOS */
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+            
+            /* Anti Select & Native Feel */
+            user-select: none; 
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        .container {
-            width: 100%;
-            max-width: 480px;
-            padding: 20px;
-            box-sizing: border-box;
-            padding-bottom: 100px;
-        }
+        /* === 1. ZONA IDENTITAS & VITALITAS === */
+        header { padding: 20px 20px 15px 20px; display: flex; justify-content: space-between; align-items: flex-start; }
+        .identity h1 { font-size: 1.25rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+        .identity p { font-size: 0.85rem; color: var(--text-onyx); font-weight: 700; opacity: 0.7; margin-bottom: 15px; }
+        
+        .gold-container { display: flex; align-items: center; font-weight: 800; color: var(--gold); font-size: 1.05rem; }
+        .gold-container svg { width: 20px; height: 20px; fill: var(--gold); margin-right: 5px; }
 
-        /* --- ZONA IDENTITAS --- */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            border-bottom: 2px solid var(--text-onyx);
-            padding-bottom: 10px;
-        }
-        .player-info h1 { margin: 0; font-size: 1.2rem; text-transform: uppercase; }
-        .player-info p { margin: 5px 0 0 0; font-size: 0.9rem; font-weight: bold; color: var(--system-blue); }
-        .gold-display { font-weight: bold; font-size: 1.1rem; color: #B8860B; }
+        .bars { width: 100%; max-width: 250px; }
+        .bar-wrapper { width: 100%; background: #E0E0E0; border-radius: 6px; margin-bottom: 8px; height: 16px; position: relative; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); }
+        .bar-fill { height: 100%; border-radius: 6px; transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .bar-hp { background-color: var(--hp-alert); width: 100%; } /* Default 100% sampai data dimuat */
+        .bar-mp { background-color: var(--mp-cobalt); width: 100%; height: 12px; }
+        .bar-text { position: absolute; right: 6px; top: 0; font-size: 0.7rem; color: #FFF; font-weight: bold; line-height: 16px; text-shadow: 1px 1px 2px rgba(0,0,0,0.6); }
+        .bar-mp + .bar-text { line-height: 12px; font-size: 0.65rem;} /* Adjust text for smaller MP bar */
 
-        /* --- ZONA VITALITAS --- */
-        .bar-container { margin-bottom: 20px; }
-        .bar-label { display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: bold; margin-bottom: 5px; }
-        .bar-bg { width: 100%; background-color: #E0E0E0; height: 12px; border-radius: 6px; overflow: hidden; margin-bottom: 10px; border: 1px solid var(--text-onyx); }
-        .hp-fill { height: 100%; background-color: var(--alert-red); width: 0%; transition: width 0.5s; }
-        .mp-fill { height: 100%; background-color: var(--system-blue); width: 0%; transition: width 0.5s; }
-
-        /* --- ZONA XP --- */
-        .xp-container {
-            text-align: center;
-            margin-bottom: 30px;
-            padding: 10px;
-            background-color: var(--card-white);
-            border: 2px solid var(--system-blue);
-            border-radius: 8px;
-            box-shadow: 4px 4px 0px var(--text-onyx);
+        /* === 2. ZONA FOKUS UTAMA (XP & LEVEL) === */
+        .xp-section { display: flex; flex-direction: column; align-items: center; margin: 25px 0 35px 0; }
+        .xp-circle {
+            width: 150px; height: 150px; border-radius: 50%;
+            background: conic-gradient(var(--arise-amethyst) 0% 0%, #E0E0E0 0% 100%);
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: background 0.5s ease;
         }
-        .xp-container h2 { margin: 0 0 5px 0; font-size: 0.9rem; color: var(--system-blue); }
-
-        /* --- ZONA QUEST CARDS (BARU) --- */
-        .quest-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
+        .xp-inner {
+            width: 126px; height: 126px; background-color: var(--bg-alabaster);
+            border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
         }
+        .arise-arrow svg { width: 44px; height: 44px; fill: var(--text-onyx); }
+        .xp-text { margin-top: 18px; font-size: 1rem; font-weight: 800; letter-spacing: 0.5px;}
+
+        /* === 3. ZONA EKSEKUSI (DAILY QUESTS) === */
+        .quests-section { padding: 0 20px; }
+        .section-title { font-size: 1.1rem; font-weight: 900; margin-bottom: 15px; text-transform: uppercase; border-bottom: 3px solid var(--text-onyx); padding-bottom: 5px; display: inline-block; letter-spacing: 0.5px;}
+        
         .quest-card {
-            background-color: var(--card-white);
-            border: 2px solid var(--text-onyx);
-            border-radius: 8px;
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 3px 3px 0px var(--text-onyx);
-            transition: all 0.2s ease;
+            background: var(--card-bg); border-radius: 14px; padding: 18px; margin-bottom: 14px;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.04); border-left: 5px solid var(--text-onyx);
+            transition: all 0.2s ease; cursor: pointer;
         }
-        .quest-info { width: 75%; }
-        .quest-info h4 { margin: 0 0 5px 0; font-size: 0.95rem; color: var(--text-onyx); }
-        .quest-info p { margin: 0; font-size: 0.75rem; font-weight: bold; }
+        .quest-card:active { transform: scale(0.98); } /* Efek membal saat ditekan */
         
-        .reward-text { color: var(--system-blue); }
-        .penalty-text { color: var(--alert-red); }
-
-        .btn-check {
-            background-color: var(--bg-alabaster);
-            border: 2px solid var(--text-onyx);
-            padding: 10px 15px;
-            font-weight: bold;
-            font-family: inherit;
-            cursor: pointer;
-            border-radius: 4px;
-            box-shadow: 2px 2px 0px var(--text-onyx);
-        }
-        .btn-check:active {
-            background-color: var(--system-blue);
-            color: white;
-            box-shadow: 0px 0px 0px var(--text-onyx);
-            transform: translate(2px, 2px);
-        }
-
-        /* Efek saat quest selesai */
-        .quest-card.completed {
-            background-color: #E0E0E0;
-            border-color: #9E9E9E;
-            box-shadow: none;
-            opacity: 0.6;
-        }
-        .quest-card.completed h4 { text-decoration: line-through; color: #757575; }
-        .quest-card.completed .btn-check { display: none; }
-
-        /* --- LOADING & NAVIGASI --- */
-        #loading { text-align: center; font-weight: bold; color: var(--system-blue); margin-top: 50px; animation: blink 1s infinite; }
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0; } 100% { opacity: 1; } }
+        .quest-card.completed { background: #EAEAEA; border-left-color: var(--gray-dim); opacity: 0.6; box-shadow: none; }
+        .quest-card.completed .quest-title { text-decoration: line-through; color: var(--gray-dim); }
         
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 480px; background-color: var(--card-white); border-top: 2px solid var(--text-onyx); display: flex; justify-content: space-around; padding: 10px 0; z-index: 10; }
-        .fab-arise { background-color: var(--arise-purple); color: white; border: 2px solid var(--text-onyx); border-radius: 50%; width: 60px; height: 60px; font-weight: bold; font-size: 0.8rem; position: relative; top: -30px; cursor: pointer; box-shadow: 0px 4px 0px var(--text-onyx); }
+        .quest-info { flex-grow: 1; padding-right: 15px;}
+        .quest-meta { font-size: 0.75rem; font-weight: 800; color: var(--mp-cobalt); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; display: block;}
+        .quest-title { font-size: 1rem; font-weight: 700; line-height: 1.3; margin-bottom: 8px; }
+        .quest-rewards { font-size: 0.8rem; color: #555; font-weight: 700; }
+        .reward-xp { color: var(--arise-amethyst); }
+        .reward-gold { color: var(--gold); }
+        .penalty-hp { color: var(--hp-alert); font-weight: 800; margin-left: 5px; display: inline-block; background: rgba(211, 47, 47, 0.1); padding: 2px 6px; border-radius: 4px;}
+
+        .checkbox { width: 28px; height: 28px; border: 2.5px solid var(--text-onyx); border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0;}
+        .quest-card.completed .checkbox { background: var(--text-onyx); border-color: var(--text-onyx); }
+        .quest-card.completed .checkbox::after { content: '✔'; color: #FFF; font-size: 16px; font-weight: bold;}
+
+        /* === 4. NAVIGASI & PROTOKOL DARURAT (FOOTER) === */
+        footer {
+            position: absolute; bottom: 0; left: 0; width: 100%; background: var(--card-bg);
+            height: calc(70px + env(safe-area-inset-bottom)); display: flex; justify-content: space-around; align-items: center;
+            padding-bottom: env(safe-area-inset-bottom);
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.05); border-top: 1px solid #EAEAEA; border-radius: 20px 20px 0 0;
+            z-index: 10;
+        }
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-onyx); font-size: 0.7rem; font-weight: 800; opacity: 0.5; padding: 10px; cursor: pointer; transition: 0.2s;}
+        .nav-item svg { width: 26px; height: 26px; fill: currentColor; margin-bottom: 4px; }
+        .nav-item.active { opacity: 1; color: var(--mp-cobalt); }
+
+        /* Floating Action Button - Shadow Extraction */
+        .fab-arise {
+            width: 66px; height: 66px; border-radius: 50%; background: var(--arise-amethyst);
+            display: flex; align-items: center; justify-content: center;
+            transform: translateY(-25px); box-shadow: 0 6px 20px rgba(98, 0, 234, 0.4);
+            border: 5px solid var(--bg-alabaster); color: white; font-weight: 900; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;
+            cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .fab-arise:active { transform: translateY(-20px) scale(0.92); }
+        .fab-arise.critical { animation: pulseRed 2s infinite; background: var(--hp-alert); box-shadow: 0 6px 20px rgba(211, 47, 47, 0.5); }
+        
+        @keyframes pulseRed {
+            0% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(211, 47, 47, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0); }
+        }
     </style>
 </head>
 <body>
 
-    <div class="container" id="app-container" style="display: none;">
-        <div class="header">
-            <div class="player-info">
-                <h1 id="ui-name">PLAYER [LVL. 0]</h1>
-                <p id="ui-title">Title</p>
+<div id="app-container">
+    <header>
+        <div class="identity">
+            <h1 id="playerName">MENGHUBUNGKAN...</h1>
+            <p id="playerTitle">The System</p>
+            <div class="bars">
+                <div class="bar-wrapper"><div class="bar-fill bar-hp" id="barHP"></div><span class="bar-text" id="textHP">...</span></div>
+                <div class="bar-wrapper"><div class="bar-fill bar-mp" id="barMP"></div><span class="bar-text" id="textMP">...</span></div>
             </div>
-            <div class="gold-display">💰 <span id="ui-gold">0</span></div>
         </div>
-
-        <div class="bar-container">
-            <div class="bar-label"><span>❤️ HP</span><span id="ui-hp-text">0 / 0</span></div>
-            <div class="bar-bg"><div class="hp-fill" id="ui-hp-bar"></div></div>
-
-            <div class="bar-label"><span>🔵 MP</span><span id="ui-mp-text">0 / 0</span></div>
-            <div class="bar-bg"><div class="mp-fill" id="ui-mp-bar"></div></div>
+        <div class="gold-container">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5H10.9v1.69c-1.51.32-2.72 1.3-2.72 2.81 0 1.79 1.49 2.69 3.66 3.21 1.95.46 2.34 1.15 2.34 1.87 0 .53-.39 1.64-2.25 1.64-1.74 0-2.33-.97-2.43-1.8H7.76c.14 1.66 1.33 2.64 3.14 3.01V19h2.36v-1.67c1.64-.31 2.94-1.34 2.94-2.97 0-2.35-2.09-2.82-3.89-3.22z"/></svg>
+            <span id="goldAmount">0</span>
         </div>
+    </header>
 
-        <div class="xp-container">
-            <h2>✨ NEXT LEVEL PROGRESS</h2>
-            <h1 id="ui-xp-text" style="margin:0;">0 XP</h1>
-        </div>
-
-        <h3 style="border-bottom: 2px solid var(--text-onyx); padding-bottom: 5px;">DAILY QUESTS</h3>
-        
-        <div id="ui-quest-list" class="quest-list">
+    <section class="xp-section">
+        <div class="xp-circle" id="xpCircle">
+            <div class="xp-inner">
+                <div class="arise-arrow">
+                    <svg viewBox="0 0 24 24"><path d="M12 5.83L15.17 9l1.41-1.41L12 3 7.41 7.59 8.83 9 12 5.83zm0 6L15.17 15l1.41-1.41L12 9l-4.59 4.59L8.83 15 12 11.83z"/></svg>
+                </div>
             </div>
-    </div>
+        </div>
+        <div class="xp-text" id="xpText">XP: 0 / 0</div>
+    </section>
 
-    <div id="loading">
-        <p>> MENGHUBUNGKAN KE SISTEM...</p>
-        <p>> MEMBACA QUEST HARI INI...</p>
-    </div>
+    <section class="quests-section">
+        <h2 class="section-title">Daily Quests</h2>
+        <div id="questContainer">
+            <div style="text-align:center; padding: 20px; font-weight:bold; opacity:0.5; animation: pulseRed 1.5s infinite;">MIRA sedang mengkalibrasi System...</div>
+        </div>
+    </section>
 
-    <div class="bottom-nav">
-        <button style="background:none; border:none; font-weight:bold; cursor:pointer;">STATS</button>
-        <button class="fab-arise">ARISE</button>
-        <button style="background:none; border:none; font-weight:bold; cursor:pointer;">SHOP</button>
-    </div>
+    <footer>
+        <div class="nav-item active">
+            <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+            STATUS
+        </div>
+        <div class="fab-arise" id="btnArise" onclick="triggerExtraction()">
+            ARISE
+        </div>
+        <div class="nav-item">
+            <svg viewBox="0 0 24 24"><path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z"/></svg>
+            EPIC
+        </div>
+    </footer>
+</div>
 
     <script>
-        // GANTI DENGAN URL API-MU YANG ASLI!!!
-        const API_URL = 'https://script.google.com/macros/s/AKfycbyZ9QtRth9RQVYu0iid5WuZsuNC30sx77DfzIKYJnnl3K2wB60hRf1t3L6SbDckrQGr/exec';
+        // =========================================================================
+        // LEVEL ZERO (LVL.0) - THE SYSTEM FRONTEND ENGINE
+        // =========================================================================
 
+        // Endpoint API sakti Mas Uuth
+        const API_URL = "https://script.google.com/macros/s/AKfycbyZ9QtRth9RQVYu0iid5WuZsuNC30sx77DfzIKYJnnl3K2wB60hRf1t3L6SbDck/exec";
+
+        // ID Player harus SAMA dengan data di Kolom A pada Sheet 'STATUS WINDOW'
+        const PLAYER_ID = "P-001"; 
+
+        let playerData = {};
+        let dailyQuests = [];
+
+        // 1. Fungsi Utama: Menarik Data dari Google Sheets
         async function fetchSystemData() {
+            const container = document.getElementById('questContainer');
             try {
-                const response = await fetch(API_URL);
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: "GET_DASHBOARD", player_id: PLAYER_ID })
+                });
+                
                 const result = await response.json();
-
-                if (result.status === "success") {
-                    updateUI(result);
+                
+                if(result.success) {
+                    playerData = result.player;
+                    dailyQuests = result.quests;
+                    initDashboard(); // Update UI dengan data asli
                 } else {
-                    alert("Sistem Gagal Memuat Data!");
+                    container.innerHTML = `<div style="text-align:center; color: var(--hp-alert); font-weight: bold; padding: 20px;">ERROR: ${result.message}<br><br>Pastikan Player_ID "${PLAYER_ID}" dan Tanggal Hari Ini ada di Gsheet!</div>`;
                 }
             } catch (error) {
-                console.error("Error connecting to System:", error);
-                document.getElementById('loading').innerHTML = "<p style='color:red;'>> KONEKSI TERPUTUS.</p>";
+                console.error("Gagal terhubung ke Gsheet:", error);
+                container.innerHTML = `<div style="text-align:center; color: var(--hp-alert); font-weight: bold; padding: 20px;">Koneksi ke The System terputus. Pastikan internetmu stabil.</div>`;
             }
         }
 
-        function updateUI(data) {
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('app-container').style.display = 'block';
+        // 2. Fungsi: Render Layar dengan Data Asli dari Gsheet
+        function initDashboard() {
+            // Render Identitas
+            document.getElementById('playerName').innerText = `${playerData.name} [Lvl. ${playerData.level}]`;
+            document.getElementById('playerTitle').innerText = playerData.title;
+            
+            // Render Bar HP & MP
+            document.getElementById('barHP').style.width = `${(playerData.hp / playerData.maxHp) * 100}%`;
+            document.getElementById('textHP').innerText = `${playerData.hp}/${playerData.maxHp}`;
+            
+            document.getElementById('barMP').style.width = `${(playerData.mp / playerData.maxMp) * 100}%`;
+            document.getElementById('textMP').innerText = `${playerData.mp}/${playerData.maxMp}`;
+            
+            // Render Gold & XP
+            document.getElementById('goldAmount').innerText = Number(playerData.gold).toLocaleString('id-ID');
+            const xpPercentage = (playerData.xp / playerData.maxXp) * 100;
+            document.getElementById('xpCircle').style.background = `conic-gradient(var(--arise-amethyst) 0% ${xpPercentage}%, #E0E0E0 ${xpPercentage}% 100%)`;
+            document.getElementById('xpText').innerText = `XP: ${Number(playerData.xp).toLocaleString('id-ID')} / ${Number(playerData.maxXp).toLocaleString('id-ID')}`;
+            
+            // Render Misi Hari Ini
+            const container = document.getElementById('questContainer');
+            container.innerHTML = '';
+            
+            if (dailyQuests.length === 0) {
+                container.innerHTML = `<div style="text-align:center; opacity:0.6; padding:20px; font-weight:bold;">Misi hari ini kosong.<br>Tunggu instruksi selanjutnya dari MIRA.</div>`;
+            }
 
-            // 1. UPDATE DATA PEMAIN (Sekarang berada di dalam data.player)
-            const player = data.player;
-            document.getElementById('ui-name').innerText = `${player.Nama} [LVL. ${player.Level}]`;
-            document.getElementById('ui-title').innerText = player.Title || "No Title";
-            document.getElementById('ui-gold').innerText = player.Gold;
-            document.getElementById('ui-xp-text').innerText = `${player.XP} XP`;
-
-            const hpPercent = (player.CurrentHP / player.MaxHP) * 100;
-            document.getElementById('ui-hp-bar').style.width = `${hpPercent}%`;
-            document.getElementById('ui-hp-text').innerText = `${player.CurrentHP} / ${player.MaxHP}`;
-
-            const mpPercent = (player.CurrentMP / player.MaxMP) * 100;
-            document.getElementById('ui-mp-bar').style.width = `${mpPercent}%`;
-            document.getElementById('ui-mp-text').innerText = `${player.CurrentMP} / ${player.MaxMP}`;
-
-            // 2. RENDER DAFTAR QUESTS
-            const questContainer = document.getElementById('ui-quest-list');
-            questContainer.innerHTML = ""; // Bersihkan teks loading
-
-            if(data.quests.length === 0) {
-                questContainer.innerHTML = "<p style='text-align:center; font-weight:bold;'>Tidak ada misi hari ini. Istirahatlah, Player.</p>";
-            } else {
-                data.quests.forEach((q, index) => {
-                    // Cek apakah quest sudah ditandai "Selesai" di GSheet
-                    const isCompleted = (q.Status && q.Status.toString().toLowerCase() === 'selesai');
-                    const cardClass = isCompleted ? 'quest-card completed' : 'quest-card';
-                    
-                    // Format tampilan efek HP/MP negatif
-                    let penaltyText = "";
-                    if (q.EfekHP < 0) penaltyText += ` | ${q.EfekHP} HP`;
-                    if (q.EfekMP < 0) penaltyText += ` | ${q.EfekMP} MP`;
-
-                    const questHTML = `
-                        <div class="${cardClass}">
-                            <div class="quest-info">
-                                <h4>[${q.Kategori}] ${q.NamaQuest}</h4>
-                                <p>
-                                    <span class="reward-text">+${q.RewardXP} XP | +${q.RewardGold} G</span>
-                                    <span class="penalty-text">${penaltyText}</span>
-                                </p>
-                            </div>
-                            <button class="btn-check" onclick="alert('Fitur centang ke GSheet sedang diproses oleh MIRA!')">CHECK</button>
+            dailyQuests.forEach((quest, index) => {
+                const isWarning = (quest.penalty && quest.penalty.toString().includes("HP"));
+                const warningHTML = isWarning ? `<span class="penalty-hp">⚠️ ${quest.penalty}</span>` : '';
+                const isCompleted = (quest.status === "Selesai");
+                
+                const card = document.createElement('div');
+                card.className = `quest-card ${isCompleted ? 'completed' : ''}`;
+                card.onclick = () => toggleQuest(index);
+                card.innerHTML = `
+                    <div class="quest-info">
+                        <span class="quest-meta">${quest.time} • ${quest.stat}</span>
+                        <h4 class="quest-title">${quest.title}</h4>
+                        <div class="quest-rewards">
+                            <span class="reward-xp">+${quest.xp} XP</span> | 
+                            <span class="reward-gold">+${quest.gold} Gold</span>
+                            ${warningHTML}
                         </div>
-                    `;
-                    questContainer.innerHTML += questHTML;
-                });
+                    </div>
+                    <div class="checkbox"></div>
+                `;
+                container.appendChild(card);
+            });
+
+            // Logika HP/MP Kritis untuk Tombol ARISE
+            const btnArise = document.getElementById('btnArise');
+            if(playerData.mp < (playerData.maxMp * 0.5) || playerData.hp < (playerData.maxHp * 0.3)) {
+                btnArise.classList.add('critical');
+            } else {
+                btnArise.classList.remove('critical');
             }
         }
 
-        window.onload = () => { fetchSystemData(); };
+        // 3. Fungsi: Ceklis Misi & Tembak ke Gsheet
+        function toggleQuest(index) {
+            const quest = dailyQuests[index];
+            if (quest.status !== "Selesai") {
+                // Getar ringan (Haptic Feedback) jika didukung HP
+                if (window.navigator && window.navigator.vibrate) { window.navigator.vibrate(50); }
+
+                // Optimistic UI Update: Ubah di layar langsung supaya terasa instan & memuaskan
+                quest.status = "Selesai";
+                playerData.xp += Number(quest.xp);
+                playerData.gold += Number(quest.gold);
+                if(playerData.xp > playerData.maxXp) playerData.xp = playerData.maxXp; 
+                initDashboard(); 
+
+                // Tembak update ke Backend (Google Sheets) di balik layar
+                fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: "COMPLETE_QUEST",
+                        player_id: PLAYER_ID,
+                        quest_row: quest.row,
+                        xp_reward: Number(quest.xp),
+                        gold_reward: Number(quest.gold)
+                    })
+                }).catch(err => console.error("Gagal sinkronisasi ke System:", err));
+            }
+        }
+
+        function triggerExtraction() {
+            // Getar panjang untuk protokol darurat
+            if (window.navigator && window.navigator.vibrate) { window.navigator.vibrate([100, 50, 100]); }
+            alert("MIRA: Menginisiasi Shadow Extraction...\n\nOtot mentalmu (MP) sedang kelelahan. Apakah kamu ingin menulis jurnal refleksi atau mengambil Tiny Habit pemulihan?");
+        }
+
+        // Jalankan fetch saat web baru dibuka
+        window.onload = fetchSystemData;
     </script>
 </body>
 </html>
